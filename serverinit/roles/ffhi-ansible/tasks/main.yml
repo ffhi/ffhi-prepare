@@ -1,0 +1,11 @@
+---
+- name: Install required packages
+  become: true
+  apt: name={{item}} state=present update_cache=yes
+  with_items:
+    - git
+- name: Checkout ffhi-ansible
+  become: true
+  git:
+    repo: 'https://github.com/ffhi/ffhi-ansible'
+    dst: /opt/git/ffhi-ansible

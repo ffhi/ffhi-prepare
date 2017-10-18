@@ -1,0 +1,67 @@
+- name: Install base packages
+  become: true
+  apt: name={{ item }} state=preset
+  with_items:
+    - etckeeper
+- name: Install standard packages
+  become: true
+  apt: name={{ item }} state=preset
+  with_items:
+    - aptitude
+    - htop
+    - locales-all
+    - mc
+    - molly-guard
+    - needrestart
+    - pinentry-curses
+    - rng-tools
+    - screen
+    - netcat-openbsd
+    - tig
+    - tmux
+    - debfoster
+    - unattended-upgrades
+    - vim-nox
+- name: Install ansible/valgrant packages
+  become: true
+  apt: name={{ item }} state=preset
+  with_items:
+    - qemu-kvm
+    - qemu-utils
+    - libvirt-daemon-system
+    - ansible
+    - dnsmasq
+    - firewalld
+    - vagrant-libvirt
+- name: Remove useless packages
+  become: true
+  apt: name={{ item }} state=absent purge=yes
+  with_items:
+    - acpi
+    - acpid
+    - at
+    - debian-faq
+    - dmidecode
+    - eject
+    - ftp
+    - iamerican
+    - ibritish
+    - ispell
+    - laptop-detect
+    - libclass-isa-perl
+    - libswitch-perl
+    - m4
+    - mutt
+    - nano
+    - nfs-common
+    - os-prober
+    - pinentry-gtk2
+    - procmail
+    - rdnssd
+    - rpcbind
+    - telnet
+    - texinfo
+    - vim-tiny
+    - wamerican
+    - xauth
+    - xdg-user-dirs

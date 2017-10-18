@@ -1,0 +1,24 @@
+---
+- name: Install required packages
+  become: true
+  apt: name={{item}} state=present update_cache=yes
+  with_items:
+    - git
+- name: Checkout sysgit
+  become: true
+  git:
+    repo: 'https://github.com/pengutronix/sysgit'
+    dst: /opt/git/sysgit
+- name: Create /var/local/bin
+  file:
+    path: /usr/local/bin
+    state: directory
+- name: Link sysgit to /usr/local/bin
+  file:
+    src: /opt/git/sysgit/bin/sys
+    dst: /usr/local/bin/sys
+    state: link
+- name: Init sysgit for system
+  command: git --git-dir /var/lib/sysgit --work-tree / init
+- name: Disable display of untracked files in sysgit
+  command: sys git config status.showuntrackedfiles no

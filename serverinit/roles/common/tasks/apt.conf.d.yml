@@ -1,0 +1,6 @@
+---
+- name: Configure apt
+  become: true
+  template:
+    src: apt.conf.d_99_norecommends.j2
+    dst: /etc/apt/apt.conf.d/99_norecommends
