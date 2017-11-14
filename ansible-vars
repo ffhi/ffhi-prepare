@@ -1,1 +1,5 @@
+HERE=`pwd`
+
+export ANSIBLE_INVENTORY=$HERE/serverinit/inventory/hosts
 export ANSIBLE_NOCOWS=1
+
