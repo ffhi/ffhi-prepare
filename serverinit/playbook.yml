@@ -5,4 +5,4 @@
     - role: debops.apt_preferences
     - role: debops.apt
     - common
-    - ffhi-anisble
+    - ffhi-ansible
