@@ -1,3 +1,12 @@
+Preparation
+===========
+
+To run the vm installation the debian host system needs the following packages:
+
+.. code::
+  apt install bridge-utils
+  apt install virtinst
+
 Network Setup
 =============
 
