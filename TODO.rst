@@ -19,3 +19,5 @@ DONE
     20171117 rsc: discussed with motp, we remove it for now and can
     re-add it later.
 
+[ ] rsc: review /etc/hosts with bbu
+
