@@ -17,7 +17,7 @@
     - tmux                      # console multiplexer
     - debfoster                 # remove unneeded debian packets
     - unattended-upgrades       # automatic installation of security upgrades
-    - vim-nox                   # console vim with scripting FIXME - need scripting?
+    - vim-tiny                  # minimal console vim
 
 - name: Remove useless packages
   become: true
