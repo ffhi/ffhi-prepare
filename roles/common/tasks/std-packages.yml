@@ -2,22 +2,23 @@
   become: true
   apt: name={{ item }} state=preset
   with_items:
-    - etckeeper
-    - apt
-    - htop
-    - locales-all
-    - mc
-    - molly-guard
-    - needrestart
-    - pinentry-curses
-    - rng-tools
-    - screen
-    - netcat-openbsd
-    - tig
-    - tmux
-    - debfoster
-    - unattended-upgrades
-    - vim-nox
+    - etckeeper                 # handle /etc in git FIXME - needs config
+    - apt                       # debian packet management
+    - htop                      # comfortable top
+    - locales-all               # FIXME - needs review, do we need all?
+    - mc                        # midnight commander
+    - molly-guard               # protects machines from accidental shutdowns/reboots
+    - needrestart               # check which daemons need to be restarted after library upgrades
+    - pinentry-curses           # console based password entry FIXME - what needs this?
+    - rng-tools                 # daemon to use a hardware random number generator
+    - screen                    # console multiplexer
+    - netcat-openbsd            # network tool
+    - tig                       # git viewer
+    - tmux                      # console multiplexer
+    - debfoster                 # remove unneeded debian packets
+    - unattended-upgrades       # automatic installation of security upgrades
+    - vim-nox                   # console vim with scripting FIXME - need scripting?
+
 - name: Install ansible/valgrant packages
   become: true
   apt: name={{ item }} state=preset
@@ -29,6 +30,7 @@
     - dnsmasq
     - firewalld
     - vagrant-libvirt
+
 - name: Remove useless packages
   become: true
   apt: name={{ item }} state=absent purge=yes
