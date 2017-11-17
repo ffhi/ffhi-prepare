@@ -3,7 +3,7 @@
   apt: name={{ item }} state=preset
   with_items:
     - etckeeper
-    - aptitude
+    - apt
     - htop
     - locales-all
     - mc
