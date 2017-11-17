@@ -1,12 +1,8 @@
-- name: Install base packages
-  become: true
-  apt: name={{ item }} state=preset
-  with_items:
-    - etckeeper
 - name: Install standard packages
   become: true
   apt: name={{ item }} state=preset
   with_items:
+    - etckeeper
     - aptitude
     - htop
     - locales-all
