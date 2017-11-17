@@ -1,6 +1,6 @@
 - name: Install standard packages
   become: true
-  apt: name={{ item }} state=preset
+  apt: name={{ item }} state=present
   with_items:
     - etckeeper                 # handle /etc in git FIXME - needs config
     - apt                       # debian packet management
