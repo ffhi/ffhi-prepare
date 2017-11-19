@@ -1,5 +1,5 @@
 - include: hosts.yml
 - include: std-packages.yml
-- include: apt.conf.d.yml
-- include: std-config.yml
-- include: sysgit.yml
+# - include: apt.conf.d.yml
+# - include: std-config.yml
+# - include: sysgit.yml
