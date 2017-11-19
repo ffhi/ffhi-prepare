@@ -1,4 +1,7 @@
 ---
+
+- import_tasks: std-config.yml
+
 - name: Install required packages
   become: true
   apt: name={{item}} state=present update_cache=yes
