@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [  $# -ne 1 ]; then
+	echo "Usage: $0 host-name"
+	echo
+	virsh --connect=qemu:///system list --all
+	exit 1
+fi
+
+virsh --connect=qemu:///system console ${1}
