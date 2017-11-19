@@ -1,38 +1,18 @@
-- name: Install base packages
-  become: true
-  apt: name={{ item }} state=preset
-  with_items:
-    - etckeeper
 - name: Install standard packages
   become: true
-  apt: name={{ item }} state=preset
+  apt: name={{ item }} state=present
   with_items:
-    - aptitude
-    - htop
-    - locales-all
-    - mc
-    - molly-guard
-    - needrestart
-    - pinentry-curses
-    - rng-tools
-    - screen
-    - netcat-openbsd
-    - tig
-    - tmux
-    - debfoster
-    - unattended-upgrades
-    - vim-nox
-- name: Install ansible/valgrant packages
-  become: true
-  apt: name={{ item }} state=preset
-  with_items:
-    - qemu-kvm
-    - qemu-utils
-    - libvirt-daemon-system
-    - ansible
-    - dnsmasq
-    - firewalld
-    - vagrant-libvirt
+    - etckeeper                 # handle /etc in git FIXME - needs config
+    - htop                      # comfortable top
+    - molly-guard               # protects machines from accidental shutdowns/reboots
+    - needrestart               # check which daemons need to be restarted after library upgrades
+    - screen                    # console multiplexer
+    - netcat-openbsd            # network tool
+    - tig                       # git viewer
+    - tmux                      # console multiplexer
+    - unattended-upgrades       # automatic installation of security upgrades
+    - vim-tiny                  # minimal console vim
+
 - name: Remove useless packages
   become: true
   apt: name={{ item }} state=absent purge=yes

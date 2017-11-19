@@ -1,5 +1,5 @@
-- include: hosts.yml
-- include: std-packages.yml
-- include: apt.conf.d.yml
-- include: std-config.yml
-- include: sysgit.yml
+- import_tasks: hosts.yml
+- import_tasks: std-packages.yml
+# - import_tasks: apt.conf.d.yml
+# - import_tasks: std-config.yml
+# - import_tasks: sysgit.yml

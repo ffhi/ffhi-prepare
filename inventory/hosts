@@ -1,3 +1,0 @@
-[debian]
-gateway1 ansible_user=root
-www1 ansible_user=root

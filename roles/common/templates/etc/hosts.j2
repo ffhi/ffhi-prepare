@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+# IPv4
+127.0.0.1	localhost
+127.0.1.1	{{ inventory_hostname }}.{{ host_domain }}
+
+{% for item in play_hosts %}
+{{ hostvars[item]['ansible_host_v4'] }}	{{ item }}.{{ host_domain }} {{ item }}
+{% endfor %}
+
+# IPv6
+::1		localhost ip6-localhost ip6-loopback
+ff02::1		ip6-allnodes
+ff02::2		ip6-allrouters
+
+{% for item in play_hosts %}
+{{ hostvars[item]['ansible_host_v6'] }}		{{ item }}.{{ host_domain }}
+{% endfor %}
+
