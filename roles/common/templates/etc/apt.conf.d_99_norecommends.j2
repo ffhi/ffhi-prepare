@@ -1,5 +1,8 @@
 # {{ ansible_managed }}
 
+# don't install recommended packages automatically
 APT::Install-Recommends "false";
+
+# don't automatically remove recommended/suggested "important" packages
 APT::AutoRemove::RecommendsImportant "false";
 APT::AutoRemove::SuggestsImportant "false";
