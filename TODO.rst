@@ -7,6 +7,8 @@ TODO
 [ ] rsc: review best-practise directory structure:
     http://docs.ansible.com/ansible/latest/playbooks_best_practices.html#directory-layout
 
+[ ] rsc: discuss usage of sysgit
+
 DONE
 ====
 

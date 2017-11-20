@@ -1,0 +1,28 @@
+---
+
+#
+# ansible-playbook resetpackets.yml -e "target=<server>"
+#
+
+- hosts: "{{ target }}"
+
+  tasks:
+
+  - name: "Copy packet list to host"
+    copy:
+      src: getselections
+      dest: /tmp/getselections
+      owner: root
+      group: root
+      mode: 0400
+
+  - name: "Restore packet list"
+    shell: "apt-get update && dpkg --clear-selections && dpkg --set-selections < /tmp/getselections && apt-get -y -u dselect-upgrade"
+    args:
+      warn: no
+
+  - name: "Cleanup"
+    file:
+      state: absent
+      path: "/tmp/getselectsions"
+

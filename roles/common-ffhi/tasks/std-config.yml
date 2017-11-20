@@ -1,0 +1,13 @@
+---
+
+- name: Configure git
+  become: true
+  template:
+    src: root.gitconfig.j2
+    dest: /root/.gitconfig
+
+- name: Configure authorized_keys
+  become: true
+  template:
+    src: root.ssh.authorized_keys.j2
+    dest: /root/.ssh/authorized_keys

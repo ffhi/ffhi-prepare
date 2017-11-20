@@ -3,4 +3,4 @@
   become: True
   roles:
     - common
-#   - ffhi-ansible
+    - common-ffhi

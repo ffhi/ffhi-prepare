@@ -1,16 +1,7 @@
 ---
-- name: Configure git
-  become: true
-  template:
-    src: root.gitconfig.j2
-    dst: /root/.gitconfig
+
 - name: Configure screen
   become: true
   template:
     src: root.screenrc.j2
-    dst: /root/.screenrc
-- name: Configure authorized_keys
-  become: true
-  template:
-    src: root.ssh.authorized_keys.j2
-    dst: /root/.ssh/authorized_keys
+    dest: /root/.screenrc
