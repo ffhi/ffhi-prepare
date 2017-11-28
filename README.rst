@@ -46,11 +46,11 @@ To create a new VM image and install a base debian:
 
 .. code-block:: bash
 
-    $ bin/bootstrap-vm <name>
+    $ bin/vm-bootstrap <name>
 
 To delete VM images again:
 
 .. code-block:: bash
 
-    $ bin/destroy-vm
+    $ bin/vm-destroy
 
