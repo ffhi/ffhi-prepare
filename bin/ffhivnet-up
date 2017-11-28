@@ -1,0 +1,13 @@
+#!/bin/bash
+#set -x
+HERE=$(dirname $0)
+
+if [  $# -ne 0 ]; then
+	echo "Usage: $0"
+	exit 1
+fi
+ 
+virsh --connect=qemu:///system net-undefine ffhivnet > /dev/null 2>&1
+virsh --connect=qemu:///system net-define $HERE/ffhivnet.xml
+virsh --connect=qemu:///system net-start ffhivnet
+virsh --connect=qemu:///system net-list
