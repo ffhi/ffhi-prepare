@@ -29,7 +29,7 @@ virt-install \
 	--os-type=linux \
 	--os-variant=debian$DEBIAN_RELEASE \
 	--virt-type=kvm \
-	--network bridge:br0 \
+	--network bridge:ffhibr0 \
 	--initrd-inject=$DEBIAN_PRESEED \
 	--extra-args="auto=true priority=critical hostname=${1} domain=$DOMAIN console=ttyS0"
 
