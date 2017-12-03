@@ -1,0 +1,14 @@
+---
+  
+#
+# used by bin/vnet-up
+#
+
+- hosts: localhost
+  connection: local
+
+  tasks:
+
+  - name: create virtual network from inventory
+    template: src={{ in }} dest={{ out }}
+
