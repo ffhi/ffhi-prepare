@@ -8,6 +8,16 @@ To run the vm installation the debian host system needs the following packages:
     $ apt install bridge-utils
     $ apt install virtinst
 
+Starting from linux-4.14, apparmor seems to be more active, so we need
+to disable namespacing by adding
+
+.. code-block:: bash
+
+    namespaces = []
+
+to ``/etc/libvirt/qemu.conf`` and restart libvirtd with ``systemctl
+restart libvirtd``.
+
 Network Setup
 =============
 
