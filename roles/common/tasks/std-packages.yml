@@ -1,6 +1,6 @@
 - name: Install standard packages
   become: true
-  apt: name={{ item }} state=present
+  apt: name={{ item }} state=present autoremove=yes
   with_items:
     - etckeeper                 # handle /etc in git FIXME - needs config
     - htop                      # comfortable top
