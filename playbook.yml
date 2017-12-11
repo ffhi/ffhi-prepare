@@ -4,3 +4,8 @@
   roles:
     - common
     - common-ffhi
+
+- hosts: ffhi-server
+  become: True
+  roles:
+    - ffhi-server
