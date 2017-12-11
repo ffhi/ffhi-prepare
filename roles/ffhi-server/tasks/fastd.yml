@@ -1,0 +1,22 @@
+---
+- name: Include files
+  include_vars: vars/fastd.yml
+
+- name: Install fastd package
+  become: true
+  apt: name={{ item }} state=present
+  with_items:
+    - fastd                 # fastd tunnel daemon
+
+- name: Create fastd configdirs
+  file:
+    path: "/etc/fastd/{{ item.key }}"
+    state: directory
+    recurse: yes
+  with_dict: "{{ fastd }}"
+
+- name: Configure fastd
+  template:
+    src: etc/fastd/fastd.conf.j2
+    dest: "/etc/fastd/{{ item.key }}/fastd.conf"
+  with_dict: "{{ fastd }}"

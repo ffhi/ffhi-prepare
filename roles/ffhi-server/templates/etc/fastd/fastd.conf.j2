@@ -1,0 +1,31 @@
+# {{ ansible_managed }}
+interface "{{ item.value.name }}";
+
+log level fatal;
+log to stderr level info;
+hide ip addresses yes;
+hide mac addresses yes;
+
+# Support xsalsa20 and aes128 encryption methods, prefer xsalsa20
+{% for method in item.value.methods %}
+method {{ method }}
+{% endfor %}
+
+bind {{ item.value.range }}:{{ item.value.port }};
+include "/var/secret.conf";
+secure handshakes yes;
+
+mtu {{ item.value.mtu }};
+include peers from "/var/fastd/peers";
+
+# Activate batmand-adv routing in tap interface
+on up "
+ip link set up dev $INTERFACE
+batctl if add $INTERFACE
+batctl gw server
+batctl it 10000
+";
+
+on down "
+batctl if del $INTERFACE
+";

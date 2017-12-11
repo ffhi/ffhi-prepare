@@ -1,0 +1,31 @@
+---
+fastd:
+  ffhiv4:
+    name: ffhi-vpn
+    port: 10000
+    methods:
+      - salsa2012+gmac
+      - xsalsa20-poly1305
+      - aes128-gcm
+    range: 0.0.0.0
+    mtu: 1426
+  ffhiv6:
+    name: ffhiv6-vpn
+    port: 10102
+    methods:
+      - salsa2012+umac
+      - salsa2012+gmac
+      - xsalsa20-poly1305
+      - aes128-gcm
+    range: any
+    mtu: 1406
+  ffhiv6_gw03:
+    name: ffhiv6_gw03-vpn
+    port: 10103
+    methods:
+      - salsa2012+umac
+      - salsa2012+gmac
+      - xsalsa20-poly1305
+      - aes128-gcm
+    range: any
+    mtu: 1406
