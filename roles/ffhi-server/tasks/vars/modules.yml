@@ -1,0 +1,7 @@
+---
+modules:
+  ffhi-server:
+    modules:
+      - loop
+      - batman-adv
+      - tun

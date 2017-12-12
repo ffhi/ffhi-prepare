@@ -1,2 +1,3 @@
 - import_tasks: fastd.yml
 - import_tasks: crontab.yml
+- import_tasks: modules.yml
