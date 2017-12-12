@@ -1,0 +1,11 @@
+---
+- name: Install cron package
+  become: true
+  apt: name={{ item }} state=present
+  with_items:
+    - cron
+
+- name: Configure crontabs
+  template:
+    src: var/spool/cron/crontabs/root.j2
+    dest: "/var/spool/cron/crontabs/root"
