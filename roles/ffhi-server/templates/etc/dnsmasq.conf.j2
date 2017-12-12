@@ -1,0 +1,15 @@
+interface=bat0
+dhcp-range=10.72.1.0,10.72.254.254,2h
+dhcp-range=::,constructor:bat0,ra-stateless,ra-names,2h
+ra-param=*,0,0
+read-ethers
+
+# DHCP OPTION: MTU
+dhcp-option=26,1338
+# DHCP OPTION: NTP servers
+dhcp-option=42,0.0.0.0
+
+addn-hosts=/etc/hosts.freifunk
+domain=clients.ffhi
+domain-needed
+dhcp-fqdn

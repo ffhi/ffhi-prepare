@@ -1,0 +1,11 @@
+---
+- name: Install dnsmasq package
+  become: true
+  apt: name={{ item }} state=present
+  with_items:
+    - dnsmasq
+
+- name: Configure dnsmasq
+  template:
+    src: etc/dnsmasq.conf.j2
+    dest: "/etc/dnsmasq.conf"
