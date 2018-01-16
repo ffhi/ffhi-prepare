@@ -1,0 +1,2 @@
+host_domain: freifunk-hi.de
+ansible_user: root
