@@ -7,6 +7,11 @@ if [  $# -ne 0 ]; then
 	exit 1
 fi
 
+if [ -n "$ANSIBLE_VARS_SOURCED" ]; then
+	echo "Error: did you 'source ansible-vars'?"
+	exit 1
+fi
+
 # filter host+address definitions from inventory into definition of
 # virtual network
 
@@ -19,4 +24,3 @@ virsh --connect=qemu:///system net-start ffhivnet
 virsh --connect=qemu:///system net-list
 
 rm -f $VNET_XML_TMP
-
