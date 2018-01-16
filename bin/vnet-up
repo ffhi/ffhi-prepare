@@ -12,15 +12,17 @@ if [ -n "$ANSIBLE_VARS_SOURCED" ]; then
 	exit 1
 fi
 
+VNET_NAME=$(ansible-inventory --list | grep vnet_name -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
+
 # filter host+address definitions from inventory into definition of
 # virtual network
 
 VNET_XML_TMP=$(mktemp /tmp/ffhi-prepare-vnet.XXXXXX)
 ansible-playbook $HERE/../vnet.yml -e "in=$HERE/vnet.xml.j2 out=$VNET_XML_TMP" > /dev/null
 
-virsh --connect=qemu:///system net-undefine ffhivnet > /dev/null 2>&1
+virsh --connect=qemu:///system net-undefine $VNET_NAME > /dev/null 2>&1
 virsh --connect=qemu:///system net-define $VNET_XML_TMP
-virsh --connect=qemu:///system net-start ffhivnet
+virsh --connect=qemu:///system net-start $VNET_NAME
 virsh --connect=qemu:///system net-list
 
 rm -f $VNET_XML_TMP

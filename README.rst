@@ -29,25 +29,25 @@ network. To setup the network:
   bridge: ``brctl addif ffhibr0 eth0``
 
 libvirt creates a virtual network based on a configuration, defined in
-``bin/ffhivnet.xml``. We have a script to set up and ramp down the
+``bin/vnet.xml``. We have a script to set up and ramp down the
 virtual network:
 
 .. code-block:: bash
 
-   $ bin/ffhivnet-up
+   $ bin/vnet-up
 
 The following sections assume that the virtual network is already ramped
 up.
 
 The virtual network created above is "persistent", which means that it
-is specified in /etc/libvirt/qemu/network/ffhivnet.xml, so when
+is specified in /etc/libvirt/qemu/network/vnet.xml, so when
 restarting the vm host and libvirt, the network is ramped up again.
 
 To undefine the virtual network, we have another script:
 
 .. code-block:: bash
 
-   $ bin/ffhivnet-down
+   $ bin/vnet-down
 
 VM Scripts
 ==========

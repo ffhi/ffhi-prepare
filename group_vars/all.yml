@@ -1,2 +1,3 @@
 host_domain: freifunk-hi.de
 ansible_user: root
+vnet_name: ffhivnet
