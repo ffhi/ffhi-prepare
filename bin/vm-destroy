@@ -7,7 +7,7 @@ if [  $# -ne 1 ]; then
 	exit 1
 fi
 
-if [ -n "$ANSIBLE_VARS_SOURCED" ]; then
+if [ -z "$ANSIBLE_VARS_SOURCED" ]; then
 	echo "Error: did you 'source ansible-vars'?"
 	exit 1
 fi
