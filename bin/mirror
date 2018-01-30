@@ -1,0 +1,38 @@
+#!/bin/bash
+# installer: wget --reject="index.html*" --mirror -np  http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/
+
+# sourcehost: choose a mirror in your proximity!
+HOST=ftp.de.debian.org;
+
+# destination directory
+DEST=/tmp/mirror/debian
+
+# Debian version(s) to mirror
+DIST=testing
+
+# architecture
+ARCH=amd64
+
+VERBOSE=--progress
+
+# log timestamp
+logger -t mirror[$$] updating Debian mirror
+
+debmirror ${DEST} \
+ --keyring /usr/share/keyrings/debian-archive-keyring.gpg \
+ --nosource \
+ --host=${HOST} \
+ --e rsync \
+ --dist=${DIST} \
+ --section=main,main/debian-installer \
+ --i18n \
+ --arch=${ARCH} \
+ --di-dist=${DIST} \
+ --di-arch=${ARCH} \
+ --passive --cleanup \
+ --getcontents \
+ $VERBOSE
+
+# --root=/debian \
+
+logger -t mirror[$$] finished updating Debian mirror
