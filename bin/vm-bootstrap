@@ -20,6 +20,11 @@ if [ -z "$ANSIBLE_VARS_SOURCED" ]; then
 	exit 1
 fi
 
+	#--disk=/home/mgr/dummy.qcow2 \
+	#--filesystem=/home/mgr/mirror/debian,/mnt \
+	#-l $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
+	#--boot kernel=/home/mgr/workdir/ffhi-prepare/linux,initrd=/home/mgr/workdir/ffhi-prepare/initrd.gz,kernel_args="auto=true priority=critical hostname=${1} domain=$DOMAIN console=ttyS0" \
+
 DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
 
 virt-install \
