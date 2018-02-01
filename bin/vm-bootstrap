@@ -5,8 +5,6 @@ VM_SIZE=10 # HD size in GiB
 VM_DIRECTORY=/var/lib/libvirt/images # Directory to allocate VM image file
 VM_ARCH=amd64
 
-DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
-
 DEBIAN_RELEASE=9
 DEBIAN_RELEASE_NAME=stretch
 DEBIAN_MIRROR=http://ftp.debian.org/debian
@@ -21,6 +19,8 @@ if [ -z "$ANSIBLE_VARS_SOURCED" ]; then
 	echo "Error: did you 'source ansible-vars'?"
 	exit 1
 fi
+
+DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
 
 virt-install \
 	--nographics \
