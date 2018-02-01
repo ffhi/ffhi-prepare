@@ -16,6 +16,7 @@ fi
 virt-install \
 	--nographics \
 	--connect=qemu:///system \
+	--boot=loader=/usr/share/ovmf/OVMF.fd \
 	--name=${1} \
 	--ram=$VM_RAM \
 	--disk $VM_DIRECTORY/${1}.img \

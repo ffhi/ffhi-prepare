@@ -12,8 +12,8 @@ HOSTNAME=$1
 PKG_ARR=(
 	linux-image-amd64
 	initramfs-tools
-	grub-pc
-	grub-pc-bin
+	grub-efi-amd64
+	grub-efi-amd64-bin
 	fakechroot
 	libfakeroot
 	e2fsprogs
@@ -88,7 +88,7 @@ if [ ! -d $debdir/etc ]; then
 	exit
 fi
 
-echo "ROOT=PARTUUID=$uuid-01" > $debdir/etc/initramfs-tools/conf.d/root
+echo "ROOT=PARTUUID=$uuid-02" > $debdir/etc/initramfs-tools/conf.d/root
 echo "$hostname" > $debdir/etc/hostname
 
 cat <<EOF > $debdir/etc/network/interfaces
@@ -157,14 +157,13 @@ symlinks -v -r $debdir \
 	done
 
 run grub-mkimage \
-	-O i386-pc \
-	-o core.img \
-	-d /usr/lib/grub/i386-pc/ \
-	-p '(hd0,msdos1)/boot/grub' \
-	multiboot boot cat cmp configfile echo help linux ls serial terminal ext2 fat msdospart ata part_msdos test loadenv all_video gzio search biosdisk
+	-O x86_64-efi \
+	-o grub.efi \
+	-d /usr/lib/grub/x86_64-efi/ \
+	-p '(hd0,msdos2)/boot/grub' \
+	multiboot boot cat cmp configfile echo help linux ls serial terminal ext2 fat msdospart ata part_msdos test loadenv all_video gzio search
 
-mv $debdir/core.img $TMPGI
-cp $debdir/usr/lib/grub/i386-pc/boot.img $TMPGI
+mv $debdir/grub.efi $TMPGI
 
 cat <<EOF > $debdir/boot/grub/grub.cfg
 serial --unit=0 --speed=115200
@@ -180,22 +179,18 @@ set menu_color_highlight=white/blue
 CMDLINE="panic=60 net.ifnames=0 rw console=ttyS0,115200 hostname=$hostname"
 
 menuentry "debootstrap" {
-	linux (hd0,msdos1)/vmlinuz \$CMDLINE root=PARTUUID=$uuid-01
-	initrd (hd0,msdos1)/initrd.img
+	linux (hd0,msdos2)/vmlinuz \$CMDLINE root=PARTUUID=$uuid-02
+	initrd (hd0,msdos2)/initrd.img
 }
 EOF
 
 cat <<EOF > $TMPGI/genimage.cfg
-image grub2-boot {
-	file {
-		name = "boot.img"
+image boot.vfat {
+	vfat {
+		extraargs = "-F 32 -n BOOT"
+		file EFI/BOOT/bootx64.efi { image = 'grub.efi' }
 	}
-}
-
-image grub2-core {
-	file {
-		name = "core.img"
-	}
+	size = 64M
 }
 
 image root.ext4 {
@@ -210,16 +205,9 @@ image $hostname.img {
 		disk-signature = 0x$uuid
 	}
 
-	partition grub2boot {
-		size = 512
-		in-partition-table = false
-		image = "grub2-boot"
-	}
-
-	partition grub2core {
-		offset = 512
-		in-partition-table = false
-		image = "grub2-core"
+	partition vfat {
+		partition-type = 0xC
+		image = "boot.vfat"
 	}
 
 	partition rootfs {
@@ -239,4 +227,4 @@ if [ ! -e $PWD/$hostname.img ]; then
 		--rootpath=$debdir;
 fi
 
-rm -fr $TMP $TMPGI $PWD/root.ext4
+rm -fr $TMP $TMPGI $PWD/root.ext4 $PWD/boot.vfat
