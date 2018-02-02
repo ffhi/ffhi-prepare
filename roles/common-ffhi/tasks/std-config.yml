@@ -6,8 +6,16 @@
     src: root.gitconfig.j2
     dest: /root/.gitconfig
 
-- name: Configure authorized_keys
-  become: true
-  template:
-    src: root.ssh.authorized_keys.j2
-    dest: /root/.ssh/authorized_keys
+- name: Set authorized key for deployment
+  authorized_key:
+    user: root
+    state: present
+    key: '{{ item }}'
+  with_file:
+    - public_keys/ansible
+    - public_keys/motp
+    - public_keys/ph5
+    - public_keys/mgr
+    - public_keys/eleon
+    - public_keys/hamun
+    - public_keys/rsc
