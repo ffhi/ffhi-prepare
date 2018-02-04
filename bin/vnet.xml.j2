@@ -2,6 +2,7 @@
   <name>{{ vnet_name }}</name>
   <bridge name="ffhibr0"/>
   <forward mode="nat"/>
+  <domain name="{{ host_domain }}" localOnly="yes"/>
   <ip address="192.168.3.1" netmask="255.255.255.0">
     <dhcp>
       <range start="192.168.3.2" end="192.168.3.254"/>
