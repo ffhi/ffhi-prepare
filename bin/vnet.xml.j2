@@ -6,7 +6,7 @@
   <ip address="192.168.3.1" netmask="255.255.255.0">
     <dhcp>
       <range start="192.168.3.2" end="192.168.3.254"/>
-{% for host in groups['all'] %}
+{% for host in groups['remote'] %}
       <host name="{{ host }}" ip="{{ hostvars[host]['ansible_host_v4'] }}"/>
 {% endfor %}
     </dhcp>
