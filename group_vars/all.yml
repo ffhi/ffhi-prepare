@@ -1,4 +1,2 @@
 host_domain: freifunk-hi.de
-ansible_user: root
 vnet_name: ffhivnet
-ansible_ssh_private_key_file: ansible_deploy_4096
