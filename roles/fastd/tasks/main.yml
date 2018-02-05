@@ -1,0 +1,54 @@
+---
+- name: Install fastd package
+  become: true
+  apt: name={{ item }} state=present
+  with_items:
+    - fastd                 # fastd tunnel daemon
+
+- name: Create fastd configdirs
+  file:
+    path: "/etc/fastd/fastd-ffhi{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - v4
+    - v6
+    - v6_gw03
+
+- name: Configure fastd
+  template:
+    src: fastd.conf.j2
+    dest: "/etc/fastd/fastd-ffhi{{ item.name }}/fastd.conf"
+  with_items:
+    - "{{ fastd_v4 }}"
+    - "{{ fastd_v6 }}"
+    - "{{ fastd_v6_gw03 }}"
+
+- name: Configure fastd secrets
+  copy:
+    dest: "/etc/fastd/fastd-ffhi{{ item }}/secret.conf"
+    content: |
+      secret "{{ fastd_secret }}";
+  with_items:
+    - v4
+    - v6
+
+- name: Configure fastd secrets
+  copy:
+    dest: "/etc/fastd/fastd-ffhi{{ item }}/secret.conf"
+    content: |
+      secret "{{ fastd_secret_v6_gw03 }}";
+  with_items:
+    - v6_gw03
+
+- name: Create fastd peersdir
+  file:
+    path: "/etc/fastd/peers"
+    state: directory
+
+- name: Configure fastd peers
+  copy:
+    dest: "/etc/fastd/peers/{{ item.key }}"
+    content: |
+      key "{{ item.value }}";
+  with_dict: "{{ peers }}"

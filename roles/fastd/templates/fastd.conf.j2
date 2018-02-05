@@ -1,0 +1,31 @@
+# {{ ansible_managed }}
+interface "ffhi{{ item.name }}-vpn";
+
+log level fatal;
+log to stderr level info;
+hide ip addresses yes;
+hide mac addresses yes;
+
+# Support xsalsa20 and aes128 encryption methods, prefer xsalsa20
+{% for method in item.methods %}
+method {{ method }}
+{% endfor %}
+
+bind {{ item.range }}:{{ item.port }};
+include "secret.conf";
+secure handshakes yes;
+
+mtu {{ item.mtu }};
+include peers from "/etc/fastd/peers";
+
+# Activate batmand-adv routing in tap interface
+on up "
+ip link set up dev $INTERFACE
+batctl if add $INTERFACE
+batctl gw server
+batctl it 10000
+";
+
+on down "
+batctl if del $INTERFACE
+";
