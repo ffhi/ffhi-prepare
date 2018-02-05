@@ -1,2 +1,3 @@
 - import_playbook: local.yml
+- import_playbook: waitremote.yml
 - import_playbook: remote.yml
