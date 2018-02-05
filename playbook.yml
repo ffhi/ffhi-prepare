@@ -1,5 +1,2 @@
-- hosts: remote
-  become: True
-  roles:
-    - common
-    - common-ffhi
+- import_playbook: local.yml
+- import_playbook: remote.yml

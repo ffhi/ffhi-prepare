@@ -1,0 +1,33 @@
+---
+- name: create tempfile for vnet
+  tempfile:
+    state: file
+    suffix: vnet
+  register: vnettmpfile
+
+- name: create virtual network from inventory
+  template:
+    src: vnet.xml.j2
+    dest: '{{ vnettmpfile.path }}'
+
+- name: destroy virtual network
+  command: virsh --connect=qemu:///system net-destroy '{{ vnet_name }}'
+  ignore_errors: yes
+
+- name: undefine virtual network
+  command: virsh --connect=qemu:///system net-undefine '{{ vnet_name }}'
+  ignore_errors: yes
+
+- name: define virtual network
+  command: virsh --connect=qemu:///system net-define '{{ vnettmpfile.path }}'
+
+- name: start virtual network
+  command: virsh --connect=qemu:///system net-start '{{ vnet_name }}'
+
+- name: list virtual networks
+  command: virsh --connect=qemu:///system net-list
+
+- name: remove tmp file
+  file:
+    state: absent
+    path: '{{ vnettmpfile.path }}'
