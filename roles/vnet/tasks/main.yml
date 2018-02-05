@@ -24,6 +24,16 @@
 - name: start virtual network
   command: virsh --connect=qemu:///system net-start '{{ vnet_name }}'
 
+- name: stop all virtual machines
+  command: virsh --connect=qemu:///system destroy '{{ item }}'
+  with_items: '{{ groups.remote }}'
+  ignore_errors: yes
+
+- name: start all virtual machines
+  command: virsh --connect=qemu:///system start '{{ item }}'
+  with_items: '{{ groups.remote }}'
+  ignore_errors: yes
+
 - name: list virtual networks
   command: virsh --connect=qemu:///system net-list
 
