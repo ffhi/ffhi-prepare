@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#script needs installed host-packages: ovmf symlinks fakeroot fakechroot debootstrap genext2fs dosfstools mtools genimage
 
 PATH=$PATH:/usr/sbin:/sbin
 
@@ -30,6 +29,28 @@ die () {
 	echo "$@" 1>&2
 	exit 1
 }
+
+
+# check if we have all necessary packages on the host
+HOST_DEB_PACKAGES=$(dpkg-query -f '${binary:Package}\n' -W)
+for p in \
+	symlinks \
+	fakeroot \
+	fakechroot \
+	debootstrap \
+	genext2fs \
+	dosfstools \
+	mtools; \
+do
+	echo $HOST_DEB_PACKAGES | grep -w $p > /dev/null
+	if [ "$?" == "1" ]; then
+		die "$p package is missing on the host, please install"
+	fi
+done
+
+# genimage is currently not in debian, check if it is in the path
+command -v genimage > /dev/null 2>&1 || die "genimage not found in path"
+
 
 pkgs=$(printf ",%s" "${PKG_ARR[@]}")
 pkgs=${pkgs:1}
