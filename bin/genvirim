@@ -208,7 +208,7 @@ EOF
 
 cat <<EOF > $TMPGI/genimage.cfg
 image grub2-boot {
-	file {
+file {
 		name = "boot.img"
 	}
 }
