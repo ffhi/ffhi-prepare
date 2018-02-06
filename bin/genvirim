@@ -47,10 +47,10 @@ type=`dpkg-architecture -qDEB_HOST_GNU_TYPE 2>/dev/null`
 systype=${type#*-}
 arch=${ARCH:-`dpkg-architecture -t$(arch)-$systype -qDEB_HOST_ARCH 2>/dev/null`}
 
-command -v $debootstrap >/dev/null 2>&1 || die 'debootstrap command is missing (sudo apt-get install debootstrap)'
-command -v $genimage    >/dev/null 2>&1 || die 'genimage command is missing (sudo apt-get install genimage)'
-command -v fakeroot     >/dev/null 2>&1 || die 'fakeroot command is missing (sudo apt-get install fakeroot)'
-command -v fakechroot   >/dev/null 2>&1 || die 'fakechroot command is missing (sudo apt-get install fakechroot)'
+command -v $debootstrap >/dev/null 2>&1 || die 'debootstrap command is missing (sudo apt install debootstrap)'
+command -v $genimage    >/dev/null 2>&1 || die 'genimage command is missing (sudo apt install genimage)'
+command -v fakeroot     >/dev/null 2>&1 || die 'fakeroot command is missing (sudo apt install fakeroot)'
+command -v fakechroot   >/dev/null 2>&1 || die 'fakechroot command is missing (sudo apt install fakechroot)'
 
 if [ -n "$DEBOOTSTRAP_CACHE" ]; then
     mkdir -p "$DEBOOTSTRAP_CACHE"
