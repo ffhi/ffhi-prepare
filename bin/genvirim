@@ -21,6 +21,14 @@ PKG_ARR=(
 	python
 )
 
+umlrun () {
+	fakeroot linux.uml \
+			init=/$@ \
+			rootfstype=hostfs \
+			root=/dev/root \
+			rootflags=$debdir rw mem=1G
+}
+
 run () {
 	HOME=/root fakechroot fakeroot chroot $debdir "$@"
 }
@@ -34,13 +42,13 @@ die () {
 # check if we have all necessary packages on the host
 HOST_DEB_PACKAGES=$(dpkg-query -f '${binary:Package}\n' -W)
 for p in \
-	symlinks \
 	fakeroot \
 	fakechroot \
 	debootstrap \
 	genext2fs \
 	dosfstools \
-	mtools; \
+	mtools \
+	user-mode-linux; \
 do
 	echo $HOST_DEB_PACKAGES | grep -w $p > /dev/null
 	if [ "$?" == "1" ]; then
@@ -97,6 +105,7 @@ if [ ! -d $debdir ]; then
 	fakechroot fakeroot $debootstrap \
 		--unpack-tarball="$tarball" \
 		--include $pkgs \
+		--foreign \
 		$debootstrap_opts \
 		$release \
 		$debdir \
@@ -109,7 +118,29 @@ if [ ! -d $debdir/etc ]; then
 	exit
 fi
 
-rm $debdir/etc/timezone $debdir/etc/localtime
+#finish second stage
+cat <<-EOF > $debdir/umlinit
+#!/bin/sh
+
+set -ex
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t tmpfs none /tmp
+
+#mount --bind /usr/lib/uml/modules /lib/modules
+
+/debootstrap/debootstrap --second-stage
+
+poweroff -f
+EOF
+
+if [ ! -e $debdir/vmlinuz ]; then
+	chmod +x $debdir/umlinit
+	umlrun umlinit
+fi
 
 cat <<EOF > $debdir/root/preseed.cfg
 tzdata tzdata/Areas select Europe
@@ -126,16 +157,44 @@ sed -i $debdir/etc/locale.gen -e 's/^# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/'
 sed -i $debdir/etc/default/grub -e 's/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet\"/GRUB_CMDLINE_LINUX_DEFAULT=\"net.ifnames=0 rw\"/'
 sed -i $debdir/etc/default/grub -e 's/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"console=ttyS0,115200 hostname=$hostname\"/'
 
-run debconf-set-selections /root/preseed.cfg
-run dpkg-reconfigure -f noninteractive tzdata
-run dpkg-reconfigure -f noninteractive locales
+#finish host preparation
+cat <<-EOF > $debdir/umlinit
+#!/bin/sh
 
-rm $debdir/root/preseed.cfg
+set -ex
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t tmpfs none /tmp
+
+debconf-set-selections /root/preseed.cfg
+dpkg-reconfigure -f noninteractive tzdata
+dpkg-reconfigure -f noninteractive locales
 
 #systemd-timesyncd is mising its user in current release, create one
-run adduser --disabled-password --disabled-login --no-create-home --gecos "" systemd-timesync
+adduser --disabled-password --disabled-login --no-create-home --gecos "" systemd-timesync || true
 
-run apt clean
+apt clean
+
+grub-mkimage \
+	-O i386-pc \
+	-o core.img \
+	-d /usr/lib/grub/i386-pc/ \
+	-p '(hd0,msdos1)/boot/grub' \
+	multiboot boot cat cmp configfile echo help linux ls serial terminal ext2 fat msdospart ata part_msdos test loadenv all_video gzio search biosdisk
+
+poweroff -f
+EOF
+
+if [ ! -e $debdir/core.img ]; then
+	rm $debdir/etc/timezone $debdir/etc/localtime
+	chmod +x $debdir/umlinit
+	umlrun umlinit
+fi
+
+rm $debdir/root/preseed.cfg
 
 echo "ROOT=PARTUUID=$uuid-01" > $debdir/etc/initramfs-tools/conf.d/root
 echo "$hostname" > $debdir/etc/hostname
@@ -167,23 +226,7 @@ cat $PWD/ansible_deploy_4096.pub > $debdir/root/.ssh/authorized_keys
 # including PARTUUID
 #run update-initramfs -u
 
-symlinks -v -r $debdir \
-	| grep absolute \
-	| cut -d " " -f 2 \
-	| while read i; \
-		do target=$(readlink -f $i); \
-		fixed=${target#$debdir}; \
-		ln -snf $fixed $i; \
-	done
-
-run grub-mkimage \
-	-O i386-pc \
-	-o core.img \
-	-d /usr/lib/grub/i386-pc/ \
-	-p '(hd0,msdos1)/boot/grub' \
-	multiboot boot cat cmp configfile echo help linux ls serial terminal ext2 fat msdospart ata part_msdos test loadenv all_video gzio search biosdisk
-
-mv $debdir/core.img $TMPGI
+cp $debdir/core.img $TMPGI
 cp $debdir/usr/lib/grub/i386-pc/boot.img $TMPGI
 
 cat <<EOF > $debdir/boot/grub/grub.cfg
