@@ -7,7 +7,8 @@ VM_ARCH=amd64
 
 DEBIAN_RELEASE=9
 DEBIAN_RELEASE_NAME=stretch
-DEBIAN_MIRROR=http://ftp.debian.org/debian
+#DEBIAN_MIRROR=http://ftp.debian.org/debian
+DEBIAN_MIRROR=/home/rsc/debian-mirror/stretch
 DEBIAN_PRESEED=$(dirname $(readlink -f $0))/preseed.cfg
 
 if [  $# -ne 1 ]; then
