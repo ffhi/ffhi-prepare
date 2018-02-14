@@ -109,32 +109,6 @@ if [ ! -d $debdir/etc ]; then
 	exit
 fi
 
-echo "ROOT=PARTUUID=$uuid-01" > $debdir/etc/initramfs-tools/conf.d/root
-echo "$hostname" > $debdir/etc/hostname
-
-cat <<EOF > $debdir/etc/network/interfaces
-auto lo
-iface lo inet loopback
-
-auto eth0
-iface eth0 inet dhcp
-EOF
-
-mkdir -p $debdir/root/.ssh/
-
-#autogenerate temporary provisioning key for ansible to be removed after ansible run
-if [ ! -e $PWD/ansible_deploy_4096 ]; then
-	ssh-keygen \
-		-t rsa \
-		-b 4096 \
-		-C "ansible deployment keys" \
-		-N "" \
-		-f $PWD/ansible_deploy_4096
-fi
-cat $PWD/ansible_deploy_4096.pub > $debdir/root/.ssh/authorized_keys
-
-#sed -i $debdir/etc/shadow -e 's/root:\*/root:/g'
-
 rm $debdir/etc/timezone $debdir/etc/localtime
 
 cat <<EOF > $debdir/root/preseed.cfg
@@ -163,6 +137,31 @@ run adduser --disabled-password --disabled-login --no-create-home --gecos "" sys
 
 run apt clean
 
+echo "ROOT=PARTUUID=$uuid-01" > $debdir/etc/initramfs-tools/conf.d/root
+echo "$hostname" > $debdir/etc/hostname
+
+cat <<EOF > $debdir/etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+EOF
+
+mkdir -p $debdir/root/.ssh/
+
+#autogenerate temporary provisioning key for ansible to be removed after ansible run
+if [ ! -e $PWD/ansible_deploy_4096 ]; then
+	ssh-keygen \
+		-t rsa \
+		-b 4096 \
+		-C "ansible deployment keys" \
+		-N "" \
+		-f $PWD/ansible_deploy_4096
+fi
+cat $PWD/ansible_deploy_4096.pub > $debdir/root/.ssh/authorized_keys
+
+#sed -i $debdir/etc/shadow -e 's/root:\*/root:/g'
 
 # Is not necessary since the first boot starts with custom grub.cfg
 # including PARTUUID
