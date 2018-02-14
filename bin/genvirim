@@ -70,7 +70,7 @@ uuid=${UUID:-`dd if=/dev/urandom count=4 bs=1 2>/dev/null | od -A n -t x4 | tr -
 mirror=${MIRROR:-http://ftp.de.debian.org/debian}
 debdir=${DEBDIR:-$PWD/debootstrap}
 vendor=${VENDOR:-Debian}
-release=${RELEASE:-testing}
+release=${RELEASE:-stable}
 variant=$VARIANT
 type=`dpkg-architecture -qDEB_HOST_GNU_TYPE 2>/dev/null`
 systype=${type#*-}
