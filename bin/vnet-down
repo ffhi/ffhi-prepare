@@ -7,11 +7,6 @@ if [  $# -ne 0 ]; then
 	exit 1
 fi
 
-if [ -z "$ANSIBLE_VARS_SOURCED" ]; then
-	echo "Error: did you 'source ansible-vars'?"
-	exit 1
-fi
-
 VNET_NAME=$(ansible-inventory --list | grep vnet_name -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
 
 virsh --connect=qemu:///system net-destroy $VNET_NAME

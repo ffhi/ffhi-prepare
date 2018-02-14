@@ -5,9 +5,4 @@ if [  $# -ne 0 ]; then
 	exit 1
 fi
 
-if [ -z "$ANSIBLE_VARS_SOURCED" ]; then
-	echo "Error: did you 'source ansible-vars'?"
-	exit 1
-fi
-
 virsh --connect=qemu:///system list --all
