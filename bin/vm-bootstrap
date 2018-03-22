@@ -18,6 +18,7 @@ fi
 DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
 
 virt-install \
+	--cpu=host \
 	--nographics \
 	--connect=qemu:///system \
 	--name=${1} \
