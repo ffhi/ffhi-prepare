@@ -1,6 +1,8 @@
 TODO
 ====
 
+[ ] rsc: find out if we want to have qcow2 or raw format for the images
+
 [ ] rsc: bla says there is no good reason for a separate /boot
     partition, so we want to remove it from the debian preseed.
 
