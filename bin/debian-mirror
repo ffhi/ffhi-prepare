@@ -1,0 +1,79 @@
+#!/bin/bash
+
+help() {
+  echo "Usage: $0 [OPTIONS]" >&2
+  echo "" >&2
+  echo "Create a local debian mirror for ffhi-prepare" >&2
+  echo "" >&2
+  echo "Options:" >&2
+  echo "" >&2
+  echo "-m, --mirror-path PATH        specify path for debian mirror" >&2
+  echo "                              default: \$HOME/debian-mirror" >&2
+  echo "-d, --dist DIST1[,DIST2,...]  debian distros to mirror" >&2
+  echo "                              default: all dists referenced in ansible inventory" >&2
+  exit 1
+}
+
+#
+# parse options
+#
+
+OPTS=$(getopt -o m:d:h --long mirror-path:,dist:,help -n 'parse-options' -- "$@")
+[ "$?" != "0" ] && help
+
+eval set -- "$OPTS"
+
+OPT_MIRROR_PATH=${HOME}/debian-mirror
+OPT_DISTS=$(ansible-inventory --list | grep ansible_host_dist | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g" | sort -u)
+OPT_HELP=false
+
+while true; do
+  case "$1" in
+    -m | --mirror-path ) OPT_MIRROR_PATH="$2"; shift; shift;;
+    -d | --dists ) OPT_DISTS=${2//,/ }; shift; shift;;
+    -h | --help ) OPT_HELP=true; shift ;;
+    * ) break ;;
+  esac
+done
+
+${OPT_HELP} && help
+
+#
+# check if we have all necessary packages on the host
+#
+
+HOST_DEB_PACKAGES=$(dpkg-query -f '${binary:Package}\n' -W)
+for p in \
+  debmirror; \
+do
+  echo $HOST_DEB_PACKAGES | grep -w $p > /dev/null
+  if [ "$?" == "1" ]; then
+    echo "$p package is missing on the host, please install" >&2
+    exit 1
+  fi
+done
+
+#
+# mirror all specified dists
+#
+
+echo "Updating Debian mirrors"
+
+for dist in $OPT_DISTS; do
+  debmirror ${OPT_MIRROR_PATH}/${dist} \
+    --keyring /usr/share/keyrings/debian-archive-keyring.gpg \
+    --nosource \
+    --host=ftp.de.debian.org \
+    --e rsync \
+    --dist=${dist} \
+    --section=main,main/debian-installer \
+    --i18n \
+    --arch=amd64 \
+    --di-dist=${dist} \
+    --di-arch=amd64 \
+    --passive --cleanup \
+    --getcontents \
+    --progress
+done
+
+echo "Finished updating Debian mirrors"

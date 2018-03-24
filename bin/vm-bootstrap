@@ -2,12 +2,12 @@
 
 VM_RAM=512 # RAM in MiB
 VM_SIZE=10 # HD size in GiB
-VM_DIRECTORY=/var/lib/libvirt/images # Directory to allocate VM image file
 VM_ARCH=amd64
 
 DEBIAN_RELEASE=9
 DEBIAN_RELEASE_NAME=stretch
-DEBIAN_MIRROR=http://ftp.debian.org/debian
+#DEBIAN_MIRROR=http://ftp.debian.org/debian
+DEBIAN_MIRROR=/home/rsc/debian-mirror/stretch
 DEBIAN_PRESEED=$(dirname $(readlink -f $0))/preseed.cfg
 
 if [  $# -ne 1 ]; then
@@ -19,14 +19,14 @@ fi
 DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
 
 virt-install \
+	--cpu=host \
 	--nographics \
 	--connect=qemu:///system \
 	--name=${1} \
 	--ram=$VM_RAM \
 	--vcpus=1 \
-	-f $VM_DIRECTORY/${1}.img \
-	-s $VM_SIZE \
-	-l $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
+	--disk size=$VM_SIZE \
+	--location $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
 	--os-type=linux \
 	--os-variant=debian$DEBIAN_RELEASE \
 	--virt-type=kvm \
