@@ -2,7 +2,6 @@
 
 VM_RAM=512 # RAM in MiB
 VM_SIZE=10 # HD size in GiB
-VM_DIRECTORY=/var/lib/libvirt/images # Directory to allocate VM image file
 VM_ARCH=amd64
 
 DEBIAN_RELEASE=9
@@ -26,7 +25,6 @@ virt-install \
 	--name=${1} \
 	--ram=$VM_RAM \
 	--vcpus=1 \
-	-f $VM_DIRECTORY/${1}.img \
 	-s $VM_SIZE \
 	-l $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
 	--os-type=linux \
