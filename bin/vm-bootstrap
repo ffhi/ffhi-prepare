@@ -1,36 +1,131 @@
 #!/bin/bash
 
-VM_RAM=512 # RAM in MiB
-VM_SIZE=10 # HD size in GiB
-VM_DIRECTORY=/var/lib/libvirt/images # Directory to allocate VM image file
-VM_ARCH=amd64
+# List of possible extensions:
+#
+# - check dependencies, we need: jq, ...
+#
+# - cloning vm templates: It might be possible to clone existing vm
+#   templates, but the following method currently does not make it easily
+#   possible to resize the vm and do the modifications without root
+#   permissions:
+# 
+#   virt-clone --connect=qemu:///system -o template-stretch -n new_machine_name --auto-clone
+#   sudo virt-customize --connect=qemu:///system -d new_machine_name --edit /etc/hostname:'s/^.*$/new_machine_name/'
+#
+# - Instead of finding DOMAIN via sed, we could use jq to query the
+#   inventory. However, we didn't find a possibility to specify global
+#   variables in the ansible inventory.
 
-DEBIAN_RELEASE=9
-DEBIAN_RELEASE_NAME=stretch
-DEBIAN_MIRROR=http://ftp.debian.org/debian
-DEBIAN_PRESEED=$(dirname $(readlink -f $0))/preseed.cfg
+help() {
+  echo "Usage: $0 [OPTIONS] [machine-name]" >&2
+  echo "" >&2
+  echo "Bootstrap one or many libvirt guest machine(s) from a debian mirror." >&2
+  echo "" >&2
+  echo "Options:" >&2
+  echo "" >&2
+  echo "-i, --inventory               Use information about guest machines from ansible inventory." >&2
+  echo "                              If -i is given, a machine name is ignored." >&2
+  echo "-h, --help                    output this information" >&2
+  exit 1
 
-if [  $# -ne 1 ]; then
-	echo "Usage: $0 guest-name"
-	exit 1
+}
+
+create_vm() {
+
+	VM_NAME=$1
+	VM_RAM_MB=$2
+	VM_SIZE_GB=$3
+	DEBIAN_RELEASE_NAME=$4
+
+	VM_ARCH=amd64
+	case $DEBIAN_RELEASE_NAME in
+		stretch)	DEBIAN_RELEASE=9;;
+		*)		DEBIAN_RELEASE=0;;
+	esac
+	if [ "$DEBIAN_RELEASE_NAME" == "0" ]; then
+		echo "error: unknown debian release"
+		exit 1
+	fi
+
+	echo VM_NAME=$VM_NAME
+	echo VM_RAM_MB=$VM_RAM_MB
+	echo VM_SIZE_GB=$VM_SIZE_GB
+	echo DEBIAN_RELEASE_NAME=$DEBIAN_RELEASE_NAME
+	echo DEBIAN_RELEASE=$DEBIAN_RELEASE
+
+	# debian mirror - FIXME - find out where to find debian mirror
+	#DEBIAN_MIRROR=http://ftp.debian.org/debian
+	DEBIAN_MIRROR=/home/rsc/debian-mirror/$DEBIAN_RELEASE_NAME
+
+	DEBIAN_PRESEED=$(dirname $(readlink -f $0))/preseed.cfg
+	DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
+
+	virt-install \
+		--cpu=host \
+		--graphics none \
+		--console pty,target_type=serial \
+		--noreboot \
+		--connect=qemu:///system \
+		--name=${1} \
+		--ram=$VM_RAM_MB \
+		--vcpus=1 \
+		--disk size=$VM_SIZE_GB \
+		--location $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
+		--os-type=linux \
+		--os-variant=debian$DEBIAN_RELEASE \
+		--virt-type=kvm \
+		--network bridge:ffhibr0 \
+		--initrd-inject=$DEBIAN_PRESEED \
+		--extra-args="auto=true priority=critical hostname=${1} domain=$DOMAIN console=ttyS0"
+}
+
+#
+# parse options
+#
+
+OPTS=$(getopt -o ih --long inventory,help -n 'parse-options' -- "$@")
+[ "$?" != "0" ] && help
+
+eval set -- "$OPTS"
+
+OPT_INVENTORY=false
+OPT_HELP=false
+
+while true; do
+  case "$1" in
+    -i | --invnetory ) OPT_INVENTORY=true; shift ;;
+    -h | --help ) OPT_HELP=true; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+OPT_VM_NAME=$1
+
+${OPT_HELP} && help
+
+#
+# find out if hosts specified in the inventory do exist; create if not
+#
+
+EXISTING_VM_HOSTS=$(virsh --connect=qemu:///system -q list | awk '{print $2}')
+
+if $OPT_INVENTORY; then
+  for host in $(ansible --list-hosts all | sed -e "s/^.*hosts.*:$//g"); do
+    host_exists=false
+    for vm_host in $EXISTING_VM_HOSTS; do
+      [ $host == $vm_host ] && host_exists=true
+    done
+    if [ $host_exists == false ]; then
+      echo "$host does not exist, creating"
+      HOST_INV=$(ansible-inventory --host=$host)
+      host_release=$(echo $HOST_INV | jq -r '.ansible_host_dist')
+      host_ram_mb=$(echo $HOST_INV | jq -r '.ansible_host_ram_mb')
+      host_imgsize_gb=$(echo $HOST_INV | jq -r '.ansible_host_imgsize_gb')
+      create_vm $host $host_ram_mb $host_imgsize_gb $host_release
+    fi
+  done
+else
+  create_vm $OPT_VM_NAME 512 10 stretch # VM_NAME VM_RAM_MB VM_SIZE_GB
 fi
-
-
-DOMAIN=$(ansible-inventory --list | grep host_domain -m 1 | sed -e "s/.*\://g;s/[[:space:]]//g;s/[\",]//g")
-
-virt-install \
-	--nographics \
-	--connect=qemu:///system \
-	--name=${1} \
-	--ram=$VM_RAM \
-	--vcpus=1 \
-	-f $VM_DIRECTORY/${1}.img \
-	-s $VM_SIZE \
-	-l $DEBIAN_MIRROR/dists/$DEBIAN_RELEASE_NAME/main/installer-$VM_ARCH/ \
-	--os-type=linux \
-	--os-variant=debian$DEBIAN_RELEASE \
-	--virt-type=kvm \
-	--network bridge:ffhibr0 \
-	--initrd-inject=$DEBIAN_PRESEED \
-	--extra-args="auto=true priority=critical hostname=${1} domain=$DOMAIN console=ttyS0"
 
